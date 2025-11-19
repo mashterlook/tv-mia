@@ -19,12 +19,11 @@ iframe{width:100%;max-width:960px;height:540px;border:none;background:#000}
 .box{background:#222;padding:40px;border-radius:12px;text-align:center;width:90%;max-width:400px}
 input,button{padding:14px;margin:10px 0;width:100%;border:none;border-radius:8px;font-size:1.1em}
 button{background:#00c7ff;color:#000;font-weight:bold;cursor:pointer}
-.loading{display:flex;justify-content:center;align-items:center;height:540px;color:#00c7ff;font-size:1.5em}
 @media(max-width:768px){.l{left:-100%;transition:.3s}.l.o{left:0}.r{margin:0;width:100%}#m{display:block}}
 </style>
 </head>
 <body>
-<button id="m" style="display:none;position:fixed;top:10px;left:10px;z-index:99;background:#00c7ff;padding:12px;border-radius:50%;font-size:20px">☰</button>
+<button id="m" style="display:none;position:fixed;top:10px;left:10px;z-index:99;background:#00c7ff;padding:12px;border-radius:50%;font-size:20px">Menu</button>
 <div class="l" id="menu">
   <h2 style="text-align:center;color:#00c7ff;margin:0 0 30px">TV MÍA</h2>
   
@@ -67,31 +66,35 @@ const m = document.getElementById('pass');
 let ok = localStorage.getItem('x') === '1';
 document.getElementById('m').onclick = () => document.getElementById('menu').classList.toggle('o');
 
-// FUNCIÓN CORREGIDA: Para canales normales usa iframe, para adultos abre en nueva pestaña con loader
+// REPRODUCIR CANALES
 function play(u, isAdult = false){
   if(isAdult){
-    // Para adultos: abrir en nueva pestaña con loader para bypass
+    // Adultos → abre en pestaña nueva (bypassea el "rechazó la conexión")
     const win = window.open('', '_blank');
     win.document.write(`
-      <html><head><title>Cargando...</title><style>body{margin:0;background:#000;color:#fff;font-family:Arial;text-align:center;padding-top:200px}</style></head>
-      <body><h1>Cargando canal...</h1><script>
-        setTimeout(() => { window.location.href = '${u}'; }, 800);
-      </script></body></html>
+      <html>
+        <head><title>Cargando canal...</title>
+        <style>body{background:#000;color:#fff;font-family:Arial;text-align:center;padding-top:20%}</style>
+      </head>
+      <body>
+        <h1>Cargando canal adulto...</h1>
+        <script>setTimeout(()=>{location.href="${u}"},1000)</script>
+      </body>
+      </html>
     `);
     win.document.close();
   } else {
-    // Para normales: iframe directo
-    p.src = 'about:blank';
-    setTimeout(() => {
-      p.contentWindow.location.replace(u);
-    }, 200);
+    // Canales normales → iframe directo
+    p.src = u;
   }
 }
 
 // Cambiar pestañas
 document.addEventListener('click', e => {
   if(e.target.classList.contains('t')){
-    if(e.target.id==='adult' && !ok){ m.style.display='flex'; document.getElementById('k').focus(); return; }
+    if(e.target.id==='adult' && !ok){
+      m.style.display='flex'; document.getElementById('k').focus(); return;
+    }
     document.querySelectorAll('.t').forEach(x=>x.classList.remove('a'));
     document.querySelectorAll('.c').forEach(x=>x.classList.remove('a'));
     e.target.classList.add('a');
@@ -132,13 +135,16 @@ function unlock(){
     d.className = 'ch';
     d.textContent = c[0];
     d.dataset.u = c[1];
-    d.onclick = () => play(c[1], true);  // true = adulto, abre en nueva pestaña
+    d.onclick = () => play(c[1], true);
     l.appendChild(d);
   });
 }
 
-// Auto-desbloqueo con #adult y si ya tenía acceso
-if(location.hash === '#adult'){ history.replaceState(null,null,' '); unlock(); }
+// Auto-desbloqueo
+if(location.hash === '#adult'){
+  history.replaceState(null,null,' ');
+  unlock();
+}
 if(ok) unlock();
 </script>
 </body>
