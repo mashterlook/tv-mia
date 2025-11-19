@@ -19,6 +19,7 @@ iframe{width:100%;max-width:960px;height:540px;border:none;background:#000}
 .box{background:#222;padding:40px;border-radius:12px;text-align:center;width:90%;max-width:400px}
 input,button{padding:14px;margin:10px 0;width:100%;border:none;border-radius:8px;font-size:1.1em}
 button{background:#00c7ff;color:#000;font-weight:bold;cursor:pointer}
+.loading{display:flex;justify-content:center;align-items:center;height:540px;color:#00c7ff;font-size:1.5em}
 @media(max-width:768px){.l{left:-100%;transition:.3s}.l.o{left:0}.r{margin:0;width:100%}#m{display:block}}
 </style>
 </head>
@@ -46,7 +47,9 @@ button{background:#00c7ff;color:#000;font-weight:bold;cursor:pointer}
   <div class="c" id="ad"></div>
 </div>
 
-<div class="r"><iframe id="p" allowfullscreen></iframe></div>
+<div class="r">
+  <iframe id="p" allowfullscreen></iframe>
+</div>
 
 <div class="modal" id="pass">
   <div class="box">
@@ -64,12 +67,25 @@ const m = document.getElementById('pass');
 let ok = localStorage.getItem('x') === '1';
 document.getElementById('m').onclick = () => document.getElementById('menu').classList.toggle('o');
 
-// FUNCIÓN CORREGIDA (ya no rompe la URL nunca)
-function play(url){
-  p.src = 'about:blank';
-  setTimeout(() => {
-    p.contentWindow.location.replace(url);
-  }, 200);
+// FUNCIÓN CORREGIDA: Para canales normales usa iframe, para adultos abre en nueva pestaña con loader
+function play(u, isAdult = false){
+  if(isAdult){
+    // Para adultos: abrir en nueva pestaña con loader para bypass
+    const win = window.open('', '_blank');
+    win.document.write(`
+      <html><head><title>Cargando...</title><style>body{margin:0;background:#000;color:#fff;font-family:Arial;text-align:center;padding-top:200px}</style></head>
+      <body><h1>Cargando canal...</h1><script>
+        setTimeout(() => { window.location.href = '${u}'; }, 800);
+      </script></body></html>
+    `);
+    win.document.close();
+  } else {
+    // Para normales: iframe directo
+    p.src = 'about:blank';
+    setTimeout(() => {
+      p.contentWindow.location.replace(u);
+    }, 200);
+  }
 }
 
 // Cambiar pestañas
@@ -82,7 +98,7 @@ document.addEventListener('click', e => {
     document.getElementById(e.target.dataset.id).classList.add('a');
   }
   if(e.target.classList.contains('ch')){
-    play(e.target.dataset.u);
+    play(e.target.dataset.u, e.target.closest('#ad') ? true : false);
   }
 });
 
@@ -103,8 +119,12 @@ function unlock(){
     ["FAP TV","https://hochu.tv/fap-tv-3.html"],
     ["Private TV","https://hochu.tv/private-tv.html"],
     ["Blue Hustler","https://hochu.tv/blue-hustler.html"],
-    ["Extasy HD","https://hochu.tv/extasy-hd.html"]
-    // ← aquí puedes seguir añadiendo más
+    ["Extasy HD","https://hochu.tv/extasy-hd.html"],
+    ["Pink O TV","https://hochu.tv/pink-o-tv.html"],
+    ["OH-AH HD","https://hochu.tv/oh-ah-hd.html"],
+    ["Barely Legal TV","https://hochu.tv/barely-legal-tv.html"],
+    ["Vivid Red","https://hochu.tv/vivid-red.html"],
+    ["KinoXXX","https://hochu.tv/kinoxxx.html"]
   ];
   
   adultos.forEach(c => {
@@ -112,7 +132,7 @@ function unlock(){
     d.className = 'ch';
     d.textContent = c[0];
     d.dataset.u = c[1];
-    d.onclick = () => play(c[1]);
+    d.onclick = () => play(c[1], true);  // true = adulto, abre en nueva pestaña
     l.appendChild(d);
   });
 }
