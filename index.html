@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TV Perú Live</title>
+    <style>
+        body{margin:0;background:#000;color:#fff;font-family:Arial;display:flex;min-height:100vh}
+        .l{width:340px;background:#111;padding:20px;overflow-y:auto;height:100vh;position:fixed}
+        .r{margin-left:340px;padding:20px;width:calc(100%-340px)}
+        .t{padding:15px;background:#222;margin:8px 0;border-radius:8px;cursor:pointer;font-weight:bold}
+        .t:hover,.t.a{background:#00c7ff;color:#000}
+        .c{padding:10px;display:none}.c.a{display:block}
+        .ch{padding:12px;background:#333;margin:8px 0;border-radius:8px;cursor:pointer}
+        .ch:hover{background:#444}
+        iframe{width:100%;max-width:960px;height:540px;border:none;background:#000}
+        #adult{display:none}
+        .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000c;justify-content:center;align-items:center;z-index:99}
+        .box{background:#222;padding:40px;border-radius:12px;text-align:center;width:90%;max-width:400px}
+        input,button{padding:14px;margin:10px 0;width:100%;border:none;border-radius:8px;font-size:1.1em}
+        button{background:#00c7ff;color:#000;font-weight:bold;cursor:pointer}
+        @media(max-width:768px){.l{left:-100%;transition:.3s;z-index:9}.l.o{left:0}.r{margin:0;width:100%}#m{display:block}}
+    </style>
+</head>
+<body>
+<button id="m" style="display:none;position:fixed;top:10px;left:10px;z-index:99;background:#00c7ff;padding:12px;border-radius:50%;font-size:20px">☰</button>
+<div class="l" id="menu">
+  <h2 style="text-align:center;color:#00c7ff;margin:0 0 20px">TV PERÚ LIVE</h2>
+  <div class="t a" data-id="nac">NACIONALES</div>
+  <div class="c a" id="nac">
+    <div class="ch" data-u="https://embed.sdfgnksbounce.com/embed2/willaxtv.html">Willaxtv</div>
+    <div class="ch" data-u="https://www.cablevisionhd.com/atv-en-vivo.html">ATV</div>
+    <div class="ch" data-u="https://www.cablevisionhd.com/latina-en-vivo.html">Latina</div>
+    <div class="ch" data-u="https://www.cablevisionhd.com/america-tv-en-vivo.html">América TV</div>
+  </div>
+  <div class="t" data-id="inf">INFANTIL</div>
+  <div class="c" id="inf">
+    <div class="ch" data-u="https://www.cablevisionhd.com/cartoon-network-en-vivo.html">Cartoon Network</div>
+    <div class="ch" data-u="https://www.cablevisionhd.com/disney-channel-en-vivo.html">Disney Channel</div>
+    <div class="ch" data-u="https://www.cablevisionhd.com/disney-junior-en-vivo.html">Disney JR</div>
+  </div>
+  <div class="t" id="adult" data-id="ad">ADULTO</div>
+  <div class="c" id="ad"></div>
+</div>
+<div class="r"><iframe id="p"></iframe></div>
+
+<div class="modal" id="pass">
+  <div class="box">
+    <h2 style="color:#00c7ff">Acceso Adulto</h2>
+    <input type="password" id="k" placeholder="contraseña">
+    <button onclick="if(document.getElementById('k').value==='look')unlock()">ENTRAR</button>
+  </div>
+</div>
+
+<script>
+const p=document.getElementById('p'),a=document.getElementById('adult'),l=document.getElementById('ad'),m=document.getElementById('pass');
+let ok=localStorage.getItem('x')==='1';
+document.getElementById('m').onclick=e=>document.getElementById('menu').classList.toggle('o');
+
+document.addEventListener('click',e=>{
+  if(e.target.classList.contains('t')){
+    if(e.target.id==='adult'&&!ok){m.style.display='flex';return}
+    document.querySelectorAll('.t').forEach(x=>x.classList.remove('a'));
+    document.querySelectorAll('.c').forEach(x=>x.classList.remove('a'));
+    e.target.classList.add('a');
+    document.getElementById(e.target.dataset.id).classList.add('a');
+  }
+  if(e.target.classList.contains('ch')){
+    p.src='data:text/html,<title>Cargando...</title><style>body{margin:0;background:#000}</style><script>setTimeout(()=>{location.href="'+e.target.dataset.u+'"},500)</script>';
+  }
+});
+
+function unlock(){
+  ok=true;localStorage.setItem('x','1');m.style.display='none';a.style.display='block';
+  const canales=[
+    ["Hustler HD","https://hochu.tv/hustler-hd.html"],
+    ["Brazzers TV","https://hochu.tv/brazzers-tv.html"],
+    ["Playboy TV","https://hochu.tv/playboy-tv.html"],
+    ["Penthouse Gold","https://hochu.tv/penthouse-1.html"],
+    ["Redlight HD","https://hochu.tv/redlight-hd.html"],
+    ["FAP TV","https://hochu.tv/fap-tv-3.html"],
+    ["Babes TV","https://hochu.tv/babes-tv.html"],
+    ["Private TV","https://hochu.tv/private-tv.html"]
+    // puedes añadir más aquí
+  ];
+  canales.forEach(c=>{const d=document.createElement('div');d.className='ch';d.textContent=c[0];
+    d.onclick=()=>{p.src='data:text/html,<title>Cargando...</title><style>body{margin:0;background:#000}</style><script>setTimeout(()=>{location.href="'+c[1]+'"},500)</script>';};
+    l.appendChild(d);
+  });
+}
+if(location.hash==='#adult'){history.replaceState(null,null,' ');unlock();}
+if(ok)unlock();
+</script>
+</body>
+</html>
